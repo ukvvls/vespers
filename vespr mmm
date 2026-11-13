@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vespera | النظام العصبي للإنتاجية والجسد</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #07090e;
+            color: #f1f5f9;
+            overflow-x: hidden;
+        }
+        .ambient-bg {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: -1; overflow: hidden;
+        }
+        .blob {
+            position: absolute; filter: blur(90px); opacity: 0.35; animation: floatBlob 15s infinite alternate ease-in-out;
+        }
+        .blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: #0284c7; }
+        .blob-2 { bottom: -10%; right: -10%; width: 55vw; height: 55vw; background: #7c3aed; animation-delay: -5s; }
+        @keyframes floatBlob {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(40px, 50px) scale(1.15); }
+        }
+        .liquid-glass {
+            background: rgba(20, 24, 33, 0.65);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+        .liquid-glass-hover:hover {
+            background: rgba(30, 36, 49, 0.8);
+            border-color: rgba(56, 189, 248, 0.3);
+        }
+        .task-node-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 10px; }
+    </style>
+</head>
+<body class="min-h-screen pb-16">
+
+    <div class="ambient-bg">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <header class="sticky top-0 z-50 px-4 py-3 sm:px-8">
+        <div class="max-w-7xl mx-auto liquid-glass rounded-2xl px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-500/30">
+                    <i class="fa-solid fa-atom text-white text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-wider text-white">VESPERA</h1>
+                    <p class="text-xs text-sky-400 font-medium">نظام الإنتاجية والتحكم الجسدي</p>
+                </div>
+            </div>
+
+            <nav class="flex items-center gap-2 bg-black/30 p-1.5 rounded-xl border border-white/5">
+                <button onclick="switchTab('tasks')" id="btn-tasks" class="px-5 py-2 rounded-lg text-sm font-semibold transition-all bg-sky-500/20 text-sky-400 border border-sky-500/30">شبكة المهام</button>
+                <button onclick="switchTab('fitness')" id="btn-fitness" class="px-5 py-2 rounded-lg text-sm font-semibold transition-all text-slate-400 hover:text-white">الجسد والتمارين</button>
+            </nav>
+
+            <div class="rank-badge px-4 py-1.5 rounded-full bg-sky-500/10 border border-sky-500/30 flex items-center gap-2">
+                <span class="text-xs text-slate-300">الرتبة:</span>
+                <span id="user-rank" class="font-bold text-sky-400 text-base">E</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-8 mt-8">
+        <!-- قسم المهام -->
+        <section id="section-tasks" class="space-y-6">
+            <div class="liquid-glass p-6 sm:p-8 rounded-3xl">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white flex items-center gap-3">
+                            <i class="fa-solid fa-diagram-project text-sky-400"></i> شبكة المهام اليومية
+                        </h2>
+                        <p class="text-sm text-slate-400 mt-1">نظم مهامك وتدرج في الرتب من E إلى S</p>
+                    </div>
+                    <button onclick="openTaskModal()" class="px-5 py-3 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 text-white font-semibold text-sm shadow-lg shadow-sky-500/25 transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-plus"></i> إضافة مهمة جديدة
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+                    <div class="liquid-glass p-4 rounded-2xl flex items-center justify-between">
+                        <div>
+                            <p class="text-xs text-slate-400">مهام منجزة</p>
+                            <h3 id="completed-count" class="text-2xl font-bold text-white mt-1">0</h3>
+                        </div>
+                        <i class="fa-solid fa-circle-check text-emerald-400 text-2xl"></i>
+                    </div>
+                    <div class="liquid-glass p-4 rounded-2xl flex items-center justify-between">
+                        <div>
+                            <p class="text-xs text-slate-400">نسبة الإنجاز</p>
+                            <h3 id="completion-rate" class="text-2xl font-bold text-sky-400 mt-1">0%</h3>
+                        </div>
+                        <i class="fa-solid fa-chart-pie text-sky-400 text-2xl"></i>
+                    </div>
+                    <div class="liquid-glass p-4 rounded-2xl flex items-center justify-between">
+                        <div>
+                            <p class="text-xs text-slate-400">الرتبة المستهدفة</p>
+                            <h3 class="text-2xl font-bold text-purple-400 mt-1">S</h3>
+                        </div>
+                        <i class="fa-solid fa-arrow-trend-up text-purple-400 text-2xl"></i>
+                    </div>
+                </div>
+
+                <div id="tasks-grid" class="task-node-grid"></div>
+            </div>
+        </section>
+
+        <!-- قسم التمارين -->
+        <section id="section-fitness" class="space-y-6 hidden">
+            <div class="liquid-glass p-6 sm:p-8 rounded-3xl space-y-6">
+                <h3 class="text-xl font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-fire text-orange-400"></i> التمارين والجسد
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="liquid-glass p-4 rounded-2xl flex items-center justify-between">
+                        <div><h4 class="font-bold text-white text-sm">تمارين الضغط</h4><p class="text-xs text-slate-400">Push-ups</p></div>
+                        <button onclick="logWorkout('pushups', 10)" class="px-3 py-1.5 rounded-lg bg-orange-500/20 text-orange-400 text-xs font-semibold">+ تسجّل</button>
+                    </div>
+                </div>
+                <div class="p-4 rounded-2xl bg-black/40 border border-white/5 text-center">
+                    <span class="text-xs text-slate-400 block">إجمالي عدات الضغط</span>
+                    <span id="stat-pushups" class="text-lg font-bold text-orange-400">30</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- نافذة إضافة مهمة -->
+    <div id="task-modal" class="fixed inset-0 z-50 bg-black/70 backdrop-blur-md hidden items-center justify-center p-4">
+        <div class="liquid-glass w-full max-w-md p-6 sm:p-8 rounded-3xl space-y-6">
+            <h3 class="text-xl font-bold text-white">إضافة مهمة جديدة</h3>
+            <div class="space-y-4">
+                <input type="text" id="new-task-title" placeholder="عنوان المهمة..." class="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-sky-500">
+                <select id="new-task-rank" class="w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-sky-500">
+                    <option value="E">رتبة E</option><option value="D">رتبة D</option><option value="C">رتبة C</option><option value="B">رتبة B</option><option value="A">رتبة A</option><option value="S">رتبة S</option>
+                </select>
+            </div>
+            <div class="flex justify-end gap-3 pt-2">
+                <button onclick="closeTaskModal()" class="px-5 py-2.5 rounded-xl bg-white/5 text-slate-300 text-sm">إلغاء</button>
+                <button onclick="addNewTask()" class="px-5 py-2.5 rounded-xl bg-sky-500 text-white text-sm font-semibold">حفظ</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let state = {
+            tasks: [
+                { id: 1, title: 'مراجعة الميزانية والتقارير', rank: 'B', completed: true },
+                { id: 2, title: 'جلسة عمل مركزة ساعتين', rank: 'A', completed: false }
+            ],
+            workouts: { pushups: 30 }
+        };
+
+        function switchTab(tab) {
+            document.getElementById('section-tasks').classList.toggle('hidden', tab !== 'tasks');
+            document.getElementById('section-fitness').classList.toggle('hidden', tab !== 'fitness');
+            document.getElementById('btn-tasks').className = tab === 'tasks' ? "px-5 py-2 rounded-lg text-sm font-semibold bg-sky-500/20 text-sky-400 border border-sky-500/30" : "px-5 py-2 rounded-lg text-sm text-slate-400";
+            document.getElementById('btn-fitness').className = tab === 'fitness' ? "px-5 py-2 rounded-lg text-sm font-semibold bg-sky-500/20 text-sky-400 border border-sky-500/30" : "px-5 py-2 rounded-lg text-sm text-slate-400";
+        }
+
+        function renderTasks() {
+            const grid = document.getElementById('tasks-grid');
+            grid.innerHTML = '';
+            let completed = 0;
+            state.tasks.forEach(task => {
+                if (task.completed) completed++;
+                const card = document.createElement('div');
+                card.className = `liquid-glass p-5 rounded-2xl flex flex-col justify-between ${task.completed ? 'opacity-75 border-emerald-500/30' : 'liquid-glass-hover'}`;
+                card.innerHTML = `
+                    <div class="flex justify-between items-start mb-4">
+                        <span class="px-2.5 py-1 rounded-lg text-xs font-bold bg-black/40 border border-white/10 text-sky-400">رتبة ${task.rank}</span>
+                        <button onclick="toggleTask(${task.id})" class="w-8 h-8 rounded-full flex items-center justify-center ${task.completed ? 'bg-emerald-500 text-white' : 'bg-white/10 text-slate-400'}"><i class="fa-solid fa-check text-xs"></i></button>
+                    </div>
+                    <h3 class="font-semibold text-white text-base mb-4 ${task.completed ? 'line-through text-slate-400' : ''}">${task.title}</h3>
+                    <div class="flex justify-between items-center text-xs text-slate-400 pt-3 border-t border-white/5">
+                        <span>${task.completed ? 'منجزة' : 'قيد التنفيذ'}</span>
+                        <button onclick="deleteTask(${task.id})" class="text-rose-400 hover:text-rose-300"><i class="fa-solid fa-trash"></i></button>
+                    </div>`;
+                grid.appendChild(card);
+            });
+            document.getElementById('completed-count').innerText = completed;
+            document.getElementById('completion-rate').innerText = (state.tasks.length > 0 ? Math.round((completed / state.tasks.length) * 100) : 0) + '%';
+            let rank = completed >= 2 ? 'S' : completed >= 1 ? 'A' : 'E';
+            document.getElementById('user-rank').innerText = rank;
+        }
+
+        function toggleTask(id) { state.tasks = state.tasks.map(t => t.id === id ? {...t, completed: !t.completed} : t); renderTasks(); }
+        function deleteTask(id) { state.tasks = state.tasks.filter(t => t.id !== id); renderTasks(); }
+        function openTaskModal() { document.getElementById('task-modal').classList.remove('hidden'); document.getElementById('task-modal').classList.add('flex'); }
+        function closeTaskModal() { document.getElementById('task-modal').classList.add('hidden'); document.getElementById('task-modal').classList.remove('flex'); }
+        function addNewTask() {
+            let title = document.getElementById('new-task-title').value.trim();
+            let rank = document.getElementById('new-task-rank').value;
+            if(!title) return;
+            state.tasks.push({ id: Date.now(), title, rank, completed: false });
+            document.getElementById('new-task-title').value = '';
+            closeTaskModal();
+            renderTasks();
+        }
+        function logWorkout(type, amount) {
+            state.workouts[type] += amount;
+            document.getElementById('stat-pushups').innerText = state.workouts[type];
+        }
+        renderTasks();
+    </script>
+</body>
+</html>
